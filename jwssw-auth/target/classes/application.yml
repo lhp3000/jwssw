@@ -1,0 +1,51 @@
+server:
+  port: 8001
+
+# spring的相关配置
+spring:
+  application:
+    name: auth-server
+  datasource:
+    druid:
+      # driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/jwssw-base?serverTimezone=GMT%2B8&characterEncoding=utf-8&useSSL=false&failOverReadOnly=false&autoReconnect=true&roundRobinLoadBalance=true
+      username: jwssw-base
+      password: jwssw-base
+      filters: stat,wall,log4j,config # 配置监控统计拦截的filters，去掉后监控界面SQL无法进行统计，wall用于防火墙
+      max-active: 100 # 最大连接数
+      initial-size: 5 # 初始化大小
+      max-wait: 60000 # 获取连接等待超时时间
+      min-idle: 2 # 最小连接
+  # redis 数据库的配置
+#  redis:
+#    # 将数据放到redis的第2个数据库中，redis的每个数据库之间数据隔离的。
+#    database: 2
+#    host: 127.0.0.1
+#    port: 6379
+#    password:
+#    jedis:
+#      pool:
+#        # 连接池最大连接数（使用负值表示没有限制） 默认 8
+#        max-active: 8
+#        # 连接池最大阻塞等待时间（使用负值表示没有限制） 默认 -1
+#        max-wait: -1
+#        # 连接池中的最大空闲连接 默认 8
+#        max-idle: 8
+#        # 连接池中的最小空闲连接 默认 0
+#        min-idle: 0
+#    # 连接超时时间（毫秒）
+#    timeout: 100ms
+  # 采用的consul作为服务发现和注册的服务
+  consul:
+    host: 127.0.0.1
+    port: 8500
+    discovery:
+      # 注册到consul的服务名称
+      serviceName: ${spring.application.name}
+      # 强制使用IP地址的方式注册到consul上（这个必须配）
+      prefer-ip-address: true
+
+# 管理HTTP服务器（管理服务器属性）
+# 在Spring Boot 2.0 中对Actuator变动很大，默认只提供这三个接口（/actuator、/actuator/health和/actuator/info），
+# 要想暴露所有端点只需设置成星号即可（打开注解接口）。
+# management.endpoints.web.exposure.include: "*"
