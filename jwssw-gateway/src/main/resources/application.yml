@@ -1,0 +1,64 @@
+# 公共配置
+server:
+  # 当前服务的对外发布的端口
+  port: 8000
+
+# spring配置
+spring:
+  application:
+    name: gateway-server
+  # 网关配置
+  cloud:
+    gateway:
+      globalcors: # 全局跨域配置
+        corsConfigurations:
+          '[/**]':
+            allowCredentials: true # 允许携带认证信息
+            allowedOrigins: "*"    # 允许跨域的源(网站域名/ip)，设置*为全部
+            allowedHeaders: "*"    # 允许跨域请求里的head字段，设置*为全部
+            allowedMethods: "*"    # 允许跨域的method， 默认为GET和OPTIONS，设置*为全部
+            maxAge: 168000         # 跨域允许的有效期
+      # 路由配置 todo 最后通过数据库进行动态路由配置
+      routes:
+        # OAuth2鉴权认证服务路由
+        - id: auth-server
+          uri: lb://auth-server
+          predicates:
+            - Path=/oauth/**
+          filters:
+            - StripPrefix=0
+        # 基于角色权限控制服务路由
+        - id: rbac-server
+          uri: lb://rbac-server
+          predicates:
+            - Path=/rbac/**
+          filters:
+            - StripPrefix=1
+        # 代码生成服务路由
+        - id: my-generation
+          uri: lb://my-generation
+          predicates:
+            - Path=/gca/**
+          filters:
+            - StripPrefix=1
+        # 任务清单服务路由
+        - id: my-checklist
+          uri: lb://my-checklist
+          predicates:
+            - Path=/mtm/**
+          filters:
+            - StripPrefix=1
+  # consul服务发现和注册的配置
+  consul:
+    host: 127.0.0.1
+    port: 8500
+    discovery:
+      # 注册到consul的服务名称
+      service-name: ${spring.application.name}
+      # 强制使用IP地址的方式注册到consul上（这个必须配）
+      prefer-ip-address: true
+
+# 管理HTTP服务器（管理服务器属性）
+# 在Spring Boot 2.0 中对Actuator变动很大，默认只提供这三个接口（/actuator、/actuator/health和/actuator/info），
+# 要想暴露所有端点只需设置成星号即可（打开注解接口）。
+# management.endpoints.web.exposure.include: "*"
